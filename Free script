@@ -1,0 +1,265 @@
+-- Load the Orion Library
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+
+-- Create Window
+local Window = OrionLib:MakeWindow({
+    Name = "Goat Hub for Roblox",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "GoatHub"
+})
+
+-- Add custom background image
+local background = Instance.new("ImageLabel")
+background.Parent = Window
+background.Size = UDim2.new(1, 0, 1, 0)  -- Set the background to fill the entire window
+background.Position = UDim2.new(0, 0, 0, 0)  -- Position it at the top left corner
+background.Image = "rbxassetid://YOUR_SENTINEL_BACKGROUND_IMAGE_ID"  -- Replace with your custom image ID
+background.BackgroundTransparency = 1  -- Make sure the background is transparent
+background.ZIndex = -1  -- Place the background behind other UI elements
+
+-- Global Toggles
+_G.killAura = false
+_G.onePunch = false
+_G.autoPickup = false
+_G.godmode = false
+_G.autoFarm = false
+_G.autoSell = false
+_G.teleportToStore = false
+_G.fly = false
+_G.speed = 50
+_G.invisible = false
+_G.antiAFK = false
+
+-- Function to enable Godmode (Sets health to 4 million)
+function enableGodmode()
+    local player = game.Players.LocalPlayer
+    if player and player.Character then
+        local humanoid = player.Character:FindFirstChild("Humanoid")
+        if humanoid then
+            humanoid.MaxHealth = 4000000
+            humanoid.Health = 4000000
+        end
+    end
+end
+
+-- Function for Kill Aura (Deals 9 million damage to nearby players)
+function enableKillAura()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if _G.killAura and character then
+            for _, otherPlayer in pairs(game.Players:GetChildren()) do
+                if otherPlayer ~= player and otherPlayer.Character then
+                    local otherCharacter = otherPlayer.Character
+                    local otherHumanoid = otherCharacter:FindFirstChild("Humanoid")
+                    if otherHumanoid and (otherCharacter.PrimaryPart.Position - character.PrimaryPart.Position).Magnitude < 10 then
+                        otherHumanoid.Health = math.max(0, otherHumanoid.Health - 9000000)  -- Deal 9 million damage
+                    end
+                end
+            end
+        end
+    end)
+end
+
+-- Function to enable One Punch (Deals 9 million damage on punch)
+function enableOnePunch()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if _G.onePunch and character then
+            for _, otherPlayer in pairs(game.Players:GetChildren()) do
+                if otherPlayer ~= player and otherPlayer.Character then
+                    local otherCharacter = otherPlayer.Character
+                    local otherHumanoid = otherCharacter:FindFirstChild("Humanoid")
+                    if otherHumanoid and (otherCharacter.PrimaryPart.Position - character.PrimaryPart.Position).Magnitude < 5 then
+                        otherHumanoid.Health = math.max(0, otherHumanoid.Health - 9000000)  -- Deal 9 million damage
+                    end
+                end
+            end
+        end
+    end)
+end
+
+-- Function to enable Auto Pickup (Pick up items within range)
+function enableAutoPickup()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if not character then return end
+
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if _G.autoPickup and character then
+            for _, item in pairs(workspace:GetChildren()) do
+                if item:IsA("Part") and (item.Position - character.PrimaryPart.Position).Magnitude < 50000000 then
+                    firetouchinterest(character.HumanoidRootPart, item, 0)
+                    firetouchinterest(character.HumanoidRootPart, item, 1)
+                end
+            end
+        end
+    end)
+end
+
+-- Function to enable Fly Mode
+function enableFly()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    local humanoid = character:FindFirstChild("Humanoid")
+    local bodyGyro = Instance.new("BodyGyro")
+    local bodyVelocity = Instance.new("BodyVelocity")
+
+    if character and humanoid then
+        bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+        bodyGyro.CFrame = character.HumanoidRootPart.CFrame
+        bodyGyro.Parent = character.HumanoidRootPart
+        bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.Parent = character.HumanoidRootPart
+    end
+
+    game:GetService("RunService").Heartbeat:Connect(function()
+        if _G.fly and character then
+            bodyVelocity.Velocity = character.HumanoidRootPart.CFrame.LookVector * 50
+        end
+    end)
+end
+
+-- Function for Speed Hack
+function enableSpeedHack()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    local humanoid = character:FindFirstChild("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = _G.speed
+    end
+end
+
+-- Function for Invisible Mode
+function enableInvisible()
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if character then
+        character:FindFirstChild("Head").Transparency = 1
+        character:FindFirstChild("Torso").Transparency = 1
+        character:FindFirstChild("LeftLeg").Transparency = 1
+        character:FindFirstChild("RightLeg").Transparency = 1
+        character:FindFirstChild("LeftArm").Transparency = 1
+        character:FindFirstChild("RightArm").Transparency = 1
+        character:FindFirstChild("Humanoid").Health = 0
+    end
+end
+
+-- Function to prevent AFK kick
+function enableAntiAFK()
+    game:GetService("Players").LocalPlayer.Idled:Connect(function()
+        game:GetService("VirtualUser"):Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+        game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+    end)
+end
+
+-- Function to trigger emotes
+function triggerEmote(emoteName)
+    local player = game.Players.LocalPlayer
+    local character = player.Character
+    if character then
+        local humanoid = character:FindFirstChild("Humanoid")
+        if humanoid then
+            local emote = game:GetService("ReplicatedStorage"):WaitForChild("Emotes"):FindFirstChild(emoteName)
+            if emote then
+                humanoid:LoadAnimation(emote):Play()
+                print(emoteName .. " triggered!")
+            else
+                print("Emote not found!")
+            end
+        end
+    end
+end
+
+-- Tabs creation
+
+-- Emote Tab
+local emoteTab = Window:MakeTab({
+    Name = "Emotes",
+    Icon = "rbxassetid://6034816636", -- Star Icon
+    PremiumOnly = false
+})
+
+-- Add emote buttons (You can replace these with your desired emotes)
+emoteTab:AddButton({
+    Name = "Dance",
+    Callback = function()
+        triggerEmote("Dance1")  -- Replace with the actual name of the dance emote
+    end
+})
+
+emoteTab:AddButton({
+    Name = "Wave",
+    Callback = function()
+        triggerEmote("Wave")  -- Replace with the actual name of the wave emote
+    end
+})
+
+emoteTab:AddButton({
+    Name = "Laugh",
+    Callback = function()
+        triggerEmote("Laugh")  -- Replace with the actual name of the laugh emote
+    end
+})
+
+-- Trolling Tab
+local trollingTab = Window:MakeTab({
+    Name = "Trolling",
+    Icon = "rbxassetid://6034816636", -- Star Icon
+    PremiumOnly = false
+})
+
+trollingTab:AddButton({
+    Name = "Enable Godmode",
+    Callback = function()
+        _G.godmode = true
+        enableGodmode()
+        print("Godmode Enabled: 4 Million Health!")
+    end
+})
+
+trollingTab:AddButton({
+    Name = "Enable Kill Aura",
+    Callback = function()
+        _G.killAura = true
+        enableKillAura()
+        print("Kill Aura Activated! Deals 9 Million Damage!")
+    end
+})
+
+trollingTab:AddButton({
+    Name = "Enable One Punch",
+    Callback = function()
+        _G.onePunch = true
+        enableOnePunch()
+        print("One Punch Activated! Deals 9 Million Damage!")
+    end
+})
+
+-- Auto Farm Tab
+local autoFarmTab = Window:MakeTab({
+    Name = "AutoFarm",
+    Icon = "rbxassetid://6034816636", -- Star Icon
+    PremiumOnly = false
+})
+
+autoFarmTab:AddButton({
+    Name = "Start Auto Pickup",
+    Callback = function()
+        _G.autoPickup = true
+        enableAutoPickup()
+    end
+})
+
+autoFarmTab:AddToggle({
+    Name = "Auto Pickup Items",
+    Default = false,
+    Callback = function(Value)
+        _G.autoPickup = Value
+    end
+})
+
+-- End of script
